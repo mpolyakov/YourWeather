@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">YourWeather</string>
+    <string name="greeting">YourWeather</string>
+    <string name="currentCity">Москва</string>
+    <string name="nightmode">Ночной режим</string>
+    <string name="writeCityName">Начните вводить название города..</string>
+    <string name="moreInfo">Расширенная информация</string>
+    <string name="x2605_moscow"> Москва</string>
+    <string name="x2605_st_petersburg"> Санкт-Петербург</string>
+    <string name="x2605_new_york"> Нью-Йорк</string>
+    <!--    <string name="tt">+27</string>-->
+    <string name="changeCity_title">Выбор города</string>
+    <string name="shows_the_weather">Картинка показывает погоду визуально</string>
+    <string name="choose_city">Выберите город:</string>
+    <string name="x2605"> ★ </string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="enter_city">Выбор города:</string>
+    <string name="button">Поиск</string>
+
+    <string name="settings_theme">Светлая/Тёмная тема</string>
+    <string name="settings_about">О разработчике</string>
+    <string name="about_text">Программа <b> YourWeather</b> разработана <b>mipolyakov</b> 04-11-2019</string>
+
+    <string name="tempSens">Датчик температуры отсутствует</string>
+</resources>

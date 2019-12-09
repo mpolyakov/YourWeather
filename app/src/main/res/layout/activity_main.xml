@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="visible"
+    android:orientation="vertical"
+    tools:context="com.myapplication.myweather_copy.MainActivity">
+
+    <TextView
+        android:layout_marginTop="20dp"
+        android:id="@+id/textView9"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="0.7"
+        android:text="@string/greeting"
+        android:layout_gravity="center_horizontal"/>
+
+    <TextView
+        android:layout_marginTop="0dp"
+        android:id="@+id/currentCity"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="0.5"
+        android:onClick="onClickChangeCity"
+        android:text="@string/currentCity"
+        android:textSize="24sp"
+        android:layout_gravity="center_horizontal"/>
+
+    <TextView
+        android:layout_marginTop="0dp"
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=" "
+        android:textColor="@color/colorPrimary"
+        android:textSize="36sp"
+        android:layout_gravity="center_horizontal" />
+
+
+
+    <fragment
+        android:id="@+id/fragment"
+        android:name="com.myapplication.myweather_copy.Fragment2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        tools:layout="@layout/fragment_fragment2"
+        android:layout_marginBottom="30dp"
+        android:layout_marginTop="20dp"/>
+
+    <fragment
+        android:id="@+id/fragment1"
+        android:name="com.myapplication.myweather_copy.Fragment1"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        tools:layout="@layout/fragment_fragment1"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="20dp"/>
+
+
+    <ImageView
+        android:id="@+id/imageViewInternet"
+        android:layout_width="59dp"
+        android:layout_height="0dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.5"
+        android:contentDescription="сайт gismeteo.ru"
+        android:padding="15dp"
+        android:src="@drawable/internet96" />
+
+
+
+
+
+
+
+</LinearLayout>
