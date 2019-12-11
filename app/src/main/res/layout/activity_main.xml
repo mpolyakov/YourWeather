@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:visibility="visible"
     android:orientation="vertical"
-    tools:context="com.myapplication.myweather_copy.MainActivity">
+    tools:context="com.kts.yourweather.MainActivity">
 
     <TextView
         android:layout_marginTop="20dp"
@@ -42,7 +42,7 @@
 
     <fragment
         android:id="@+id/fragment"
-        android:name="com.myapplication.myweather_copy.Fragment2"
+        android:name="com.kts.yourweather.Fragment2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -52,7 +52,7 @@
 
     <fragment
         android:id="@+id/fragment1"
-        android:name="com.myapplication.myweather_copy.Fragment1"
+        android:name="com.kts.yourweather.Fragment1"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         tools:layout="@layout/fragment_fragment1"
