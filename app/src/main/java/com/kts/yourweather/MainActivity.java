@@ -50,23 +50,35 @@ public class MainActivity extends AppCompatActivity {
     public static boolean isDarkTheme = false;
     public static final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather?q=Moscow,RU&appid=bffab533dd87ce4285f3b672cfb5cf29";
     public String tempCurrent = null;
+    SharedPreferences.Editor editor = null;
+    String currentCityTop = null;
+    public static final String APP_PREFERENCES_CURRENT_CITY = "city";
+    TextView currentCityTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mSettings = getSharedPreferences(NAME_APP_PREFERENCES, Context.MODE_PRIVATE);       //Загружаем настройки
-        if (mSettings.contains(APP_PREFERENCES_IS_DARK_THEME)){                             //Сохраняем настройки
-            isDarkTheme = mSettings.getBoolean(APP_PREFERENCES_IS_DARK_THEME, true);     //Сохраняем настройки
-        }                                                                                   //Сохраняем настройки
-        if (isDarkTheme) {                                                                  //Сохраняем настройки
+        mSettings = getSharedPreferences(NAME_APP_PREFERENCES, Context.MODE_PRIVATE);       //Создаём файл настроек
+
+        if (mSettings.contains(APP_PREFERENCES_IS_DARK_THEME)){
+            isDarkTheme = mSettings.getBoolean(APP_PREFERENCES_IS_DARK_THEME, true);
+        }
+        if (isDarkTheme) {
             setTheme(R.style.AppDarkThem);                                                  //Применяем тёмную тему
-        }                                                                                   //Сохраняем настройки
-        else {                                                                              //Сохраняем настройки
+        }
+        else {
             setTheme(R.style.AppTheme);                                                     //Применяем светлую тему
         }
 
         setContentView(R.layout.activity_main);
+
+        currentCityTextView = findViewById(R.id.currentCity);
+        if (mSettings.contains((APP_PREFERENCES_CURRENT_CITY))){
+            currentCityTop = mSettings.getString(APP_PREFERENCES_CURRENT_CITY, "?");
+            currentCityTextView.setText(currentCityTop);
+        }
+
         gettingWeather();
 
         ImageView imageViewBrowser = findViewById(R.id.imageViewInternet);
@@ -140,13 +152,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
-        TextView currentCityTextView = findViewById(R.id.currentCity);
+
         if (requestCode == CHOOSE_CITY){
             if (resultCode == RESULT_OK){
-                String currentCityTop = data.getExtras().getString("put_city");
+                currentCityTop = data.getExtras().getString("put_city");
                 currentCityTextView.setText(currentCityTop);
-            }else {
-                currentCityTextView.setText("Москва");
+
+                editor = mSettings.edit();                                                                  //Сохраняем настройки
+                editor.putString(APP_PREFERENCES_CURRENT_CITY, currentCityTop);                              //Сохраняем настройки
+                editor.apply();
             }
         }
     }
