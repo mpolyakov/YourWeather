@@ -7,7 +7,7 @@
     <string name="moreInfo">Расширенная информация</string>
     <string name="city_number_two"> Moscow</string>
     <string name="city_number_one"> Irkutsk</string>
-    <string name="city_number_three"> Pskov</string>
+    <string name="city_number_three"> Sochi</string>
     <!--    <string name="tt">+27</string>-->
     <string name="changeCity_title">Выбор города</string>
     <string name="shows_the_weather">Картинка показывает погоду визуально</string>

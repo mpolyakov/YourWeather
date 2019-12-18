@@ -105,10 +105,7 @@ public class MainActivity extends AppCompatActivity {
         Retrofit retrofit;
         retrofit = new Retrofit.Builder().baseUrl("https://api.openweathermap.org/").addConverterFactory(GsonConverterFactory.create()).build();
         openWeather = retrofit.create(OpenWeather.class);
-
-        String cty = currentCityTextView.getText().toString();
-        Toast.makeText(this, cty, Toast.LENGTH_SHORT).show();
-        requestRetrofit("Moscow", "bffab533dd87ce4285f3b672cfb5cf29");
+        requestRetrofit(currentCityTextView.getText().toString(), "bffab533dd87ce4285f3b672cfb5cf29");
     }
 
     private void requestRetrofit(String city, String keyApi) {
@@ -160,6 +157,8 @@ public class MainActivity extends AppCompatActivity {
                 editor = mSettings.edit();                                                                  //Сохраняем настройки
                 editor.putString(APP_PREFERENCES_CURRENT_CITY, currentCityTop);                              //Сохраняем настройки
                 editor.apply();
+
+                initRetrofit();
             }
         }
     }
