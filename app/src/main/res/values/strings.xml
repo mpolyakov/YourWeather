@@ -1,13 +1,13 @@
 <resources>
     <string name="app_name">YourWeather</string>
     <string name="greeting">YourWeather</string>
-    <string name="currentCity">Москва</string>
+    <string name="currentCity">Moscow</string>
     <string name="nightmode">Ночной режим</string>
     <string name="writeCityName">Начните вводить название города..</string>
     <string name="moreInfo">Расширенная информация</string>
-    <string name="x2605_moscow"> Москва</string>
-    <string name="x2605_st_petersburg"> Санкт-Петербург</string>
-    <string name="x2605_new_york"> Нью-Йорк</string>
+    <string name="city_number_two"> Moscow</string>
+    <string name="city_number_one"> Irkutsk</string>
+    <string name="city_number_three"> Pskov</string>
     <!--    <string name="tt">+27</string>-->
     <string name="changeCity_title">Выбор города</string>
     <string name="shows_the_weather">Картинка показывает погоду визуально</string>

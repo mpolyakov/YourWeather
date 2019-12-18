@@ -1,6 +1,5 @@
 package com.kts.yourweather;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -10,10 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,17 +18,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.Gson;
+import com.kts.yourweather.interfaces.OpenWeather;
 import com.kts.yourweather.model.WeatherRequest;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
-import javax.net.ssl.HttpsURLConnection;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,33 +49,23 @@ public class MainActivity extends AppCompatActivity {
     String currentCityTop = null;
     public static final String APP_PREFERENCES_CURRENT_CITY = "city";
     TextView currentCityTextView;
+    OpenWeather openWeather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mSettings = getSharedPreferences(NAME_APP_PREFERENCES, Context.MODE_PRIVATE);       //Создаём файл настроек
-
-        if (mSettings.contains(APP_PREFERENCES_IS_DARK_THEME)){
-            isDarkTheme = mSettings.getBoolean(APP_PREFERENCES_IS_DARK_THEME, true);
-        }
-        if (isDarkTheme) {
-            setTheme(R.style.AppDarkThem);                                                  //Применяем тёмную тему
-        }
-        else {
-            setTheme(R.style.AppTheme);                                                     //Применяем светлую тему
-        }
-
+        loadTheme();
         setContentView(R.layout.activity_main);
 
-        currentCityTextView = findViewById(R.id.currentCity);
-        if (mSettings.contains((APP_PREFERENCES_CURRENT_CITY))){
-            currentCityTop = mSettings.getString(APP_PREFERENCES_CURRENT_CITY, "?");
-            currentCityTextView.setText(currentCityTop);
-        }
+        initGui();
+        loadPreferences();
+        initRetrofit();
+        initFillingRecycleArrays();
+        initEvents();
+    }
 
-        gettingWeather();
-
+    private void initEvents() {
         ImageView imageViewBrowser = findViewById(R.id.imageViewInternet);
         imageViewBrowser.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,41 +76,55 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void gettingWeather() {
-        try {
-            final URL uri = new URL(WEATHER_URL);
-            final Handler handler = new Handler();
-            new Thread(new Runnable() {
-
-                @RequiresApi(api = Build.VERSION_CODES.N)
-                public void run() {
-                    HttpsURLConnection urlConnection = null;
-                    try {
-                        urlConnection = (HttpsURLConnection) uri.openConnection();
-                        urlConnection.setRequestMethod("GET");
-                        urlConnection.setReadTimeout(10000);
-                        BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                        String result = in.lines().collect(Collectors.joining("\n"));
-                        Gson gson = new Gson();
-                        final WeatherRequest weatherRequest = gson.fromJson(result, WeatherRequest.class);
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                temperature = findViewById(R.id.textView);
-                                tempCurrent = String.format("%.0f " + "º" + "C", weatherRequest.getMain().getTemp());
-                                temperature.setText(tempCurrent);
-
-                                initFillingRecycleArrays();
-                            }
-                        });
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+    private void loadTheme() {
+        mSettings = getSharedPreferences(NAME_APP_PREFERENCES, Context.MODE_PRIVATE);       //Создаём файл настроек
+        if (mSettings.contains(APP_PREFERENCES_IS_DARK_THEME)){
+            isDarkTheme = mSettings.getBoolean(APP_PREFERENCES_IS_DARK_THEME, true);
         }
+        if (isDarkTheme) {
+            setTheme(R.style.AppDarkThem);                                                  //Применяем тёмную тему
+        }
+        else {
+            setTheme(R.style.AppTheme);                                                     //Применяем светлую тему
+        }
+    }
+
+    private void loadPreferences() {
+        if (mSettings.contains((APP_PREFERENCES_CURRENT_CITY))){
+            currentCityTop = mSettings.getString(APP_PREFERENCES_CURRENT_CITY, "?");
+            currentCityTextView.setText(currentCityTop);
+        }
+    }
+
+    private void initGui() {
+        temperature = findViewById(R.id.textView);
+        currentCityTextView = findViewById(R.id.currentCity);
+    }
+
+    private void initRetrofit() {
+        Retrofit retrofit;
+        retrofit = new Retrofit.Builder().baseUrl("https://api.openweathermap.org/").addConverterFactory(GsonConverterFactory.create()).build();
+        openWeather = retrofit.create(OpenWeather.class);
+
+        String cty = currentCityTextView.getText().toString();
+        Toast.makeText(this, cty, Toast.LENGTH_SHORT).show();
+        requestRetrofit("Moscow", "bffab533dd87ce4285f3b672cfb5cf29");
+    }
+
+    private void requestRetrofit(String city, String keyApi) {
+        openWeather.loadWeather(city, keyApi).enqueue(new Callback<WeatherRequest>() {
+            @Override
+            public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
+                if (response.body() != null){
+                    tempCurrent = String.format("%.0f " + "º" + "C", response.body().getMain().getTemp());
+                    temperature.setText(tempCurrent);
+                }
+            }
+            @Override
+            public void onFailure(Call<WeatherRequest> call, Throwable t) {
+                temperature.setText("Ошибка");
+            }
+        });
     }
 
     View.OnClickListener snackbarOnClickListener = new View.OnClickListener() {
