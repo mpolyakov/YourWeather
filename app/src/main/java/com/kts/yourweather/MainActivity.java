@@ -155,6 +155,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initGui() {
+        String pattern = "EE, dd MMM yyyy, HH:mm";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern, new Locale("ru", "RU"));
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+3"));
+        String date = simpleDateFormat.format(new Date());
+        TextView textViewDate = findViewById(R.id.textViewDate);
+        textViewDate.setText(date);
 
         textTemperature = findViewById(R.id.textView);
         currentCityTextView = findViewById(R.id.currentCity);
