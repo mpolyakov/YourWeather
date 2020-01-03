@@ -29,6 +29,7 @@
             android:layout_height="wrap_content">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextCity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
@@ -40,9 +41,21 @@
             android:id="@+id/button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/button"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="10dp"/>
+            android:layout_marginTop="10dp"
+            android:text="@string/button"
+            android:onClick="onClick_find"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonGeoLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:text="@string/buttonGPS"
+            android:onClick="onClick_getLocation"/>
+
+
     </LinearLayout>
 
 
@@ -57,8 +70,8 @@
             android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="onClick_spb"
-            android:text="@string/x2605_st_petersburg"
+            android:onClick="onClick_city2"
+            android:text="@string/city_number_one"
             android:textSize="20sp"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="10dp"
@@ -68,8 +81,8 @@
             android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="onClick_msk"
-            android:text="@string/x2605_moscow"
+            android:onClick="onClick_city1"
+            android:text="@string/city_number_two"
             android:textSize="20sp"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="10dp" />
@@ -78,8 +91,8 @@
             android:id="@+id/textView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="onClick_NY"
-            android:text="@string/x2605_new_york"
+            android:onClick="onClick_city3"
+            android:text="@string/city_number_three"
             android:textSize="20sp"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="10dp" />
