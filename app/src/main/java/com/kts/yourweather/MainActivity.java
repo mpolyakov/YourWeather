@@ -29,7 +29,11 @@ import com.kts.yourweather.interfaces.OpenWeatherByCity;
 import com.kts.yourweather.interfaces.OpenWeatherByGeoLocation;
 import com.kts.yourweather.model.WeatherRequest;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -39,7 +43,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "myLogs";
     private TextView textTemperature;
     private String tempString = "+27";
     static final private int CHOOSE_CITY = 0;
@@ -83,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         initRetrofitByCity();
         initFillingRecycleArrays();
         initEvents();
+
     }
 
     private void requestLocation() {
@@ -151,6 +155,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initGui() {
+        String pattern = "EE, dd MMM yyyy, HH:mm";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern, new Locale("ru", "RU"));
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+3"));
+        String date = simpleDateFormat.format(new Date());
+
+        TextView textViewDate = findViewById(R.id.textViewDate);
+        textViewDate.setText(date);
         textTemperature = findViewById(R.id.textView);
         currentCityTextView = findViewById(R.id.currentCity);
     }
