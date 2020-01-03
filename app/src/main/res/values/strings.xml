@@ -5,9 +5,9 @@
     <string name="nightmode">Ночной режим</string>
     <string name="writeCityName">Начните вводить название города..</string>
     <string name="moreInfo">Расширенная информация</string>
-    <string name="city_number_two"> Moscow</string>
-    <string name="city_number_one"> Irkutsk</string>
-    <string name="city_number_three"> Sochi</string>
+    <string name="city_number_two">Moscow</string>
+    <string name="city_number_one">Irkutsk</string>
+    <string name="city_number_three">Sochi</string>
     <!--    <string name="tt">+27</string>-->
     <string name="changeCity_title">Выбор города</string>
     <string name="shows_the_weather">Картинка показывает погоду визуально</string>
@@ -21,7 +21,9 @@
 
     <string name="settings_theme">Светлая/Тёмная тема</string>
     <string name="settings_about">О разработчике</string>
-    <string name="about_text">Программа <b> YourWeather</b> разработана <b>mipolyakov</b> 04-11-2019</string>
+    <string name="about_text">Программа <b> YourWeather</b> разработана <b>mpolyakov</b> 04-11-2019</string>
 
     <string name="tempSens">Датчик температуры отсутствует</string>
+    <string name="buttonLocation">Определить геолокацию</string>
+    <string name="buttonGPS">Определение по геолокации</string>
 </resources>

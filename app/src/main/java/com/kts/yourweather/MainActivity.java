@@ -1,18 +1,26 @@
 package com.kts.yourweather;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,7 +40,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "myLogs";
-    private TextView temperature;
+    private TextView textTemperature;
     private String tempString = "+27";
     static final private int CHOOSE_CITY = 0;
     private ArrayList<String> mDays = new ArrayList<>();
@@ -50,6 +58,11 @@ public class MainActivity extends AppCompatActivity {
     public static final String APP_PREFERENCES_CURRENT_CITY = "city";
     TextView currentCityTextView;
     OpenWeather openWeather;
+    String KEYAPI = "bffab533dd87ce4285f3b672cfb5cf29";
+    private String provider;
+    String latFormat;
+    String lonFormat;
+    String accuracy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,11 +71,51 @@ public class MainActivity extends AppCompatActivity {
         loadTheme();
         setContentView(R.layout.activity_main);
 
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            requestLocation();
+        } else {
+            Toast.makeText(this, "Дайте приложению права на получение геолокации", Toast.LENGTH_LONG).show();
+        }
         initGui();
         loadPreferences();
         initRetrofit();
         initFillingRecycleArrays();
         initEvents();
+    }
+
+    private void requestLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            Toast.makeText(this, "Геолокация не может быть определена. Недостаточно прав.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(criteria.ACCURACY_COARSE);
+        provider = locationManager.getBestProvider(criteria, true);
+        if (provider != null){
+            locationManager.requestLocationUpdates(provider, 10000, 10, new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    String latitude = Double.toString(location.getLatitude());
+                    latFormat = String.format("%.2f", location.getLatitude());
+                    String longitude = Double.toString(location.getLongitude());
+                    lonFormat = String.format("%.2f", location.getLongitude());
+                    accuracy = Float.toString(location.getAccuracy());
+                    Toast.makeText(MainActivity.this, latFormat + "         " + lonFormat, Toast.LENGTH_SHORT).show();
+                }
+                @Override
+                public void onStatusChanged(String s, int i, Bundle bundle) {
+                }
+                @Override
+                public void onProviderEnabled(String s) {
+                }
+                @Override
+                public void onProviderDisabled(String s) {
+                }
+            });
+        }
     }
 
     private void initEvents() {
@@ -97,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initGui() {
-        temperature = findViewById(R.id.textView);
+        textTemperature = findViewById(R.id.textView);
         currentCityTextView = findViewById(R.id.currentCity);
     }
 
@@ -105,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
         Retrofit retrofit;
         retrofit = new Retrofit.Builder().baseUrl("https://api.openweathermap.org/").addConverterFactory(GsonConverterFactory.create()).build();
         openWeather = retrofit.create(OpenWeather.class);
-        requestRetrofit(currentCityTextView.getText().toString(), "bffab533dd87ce4285f3b672cfb5cf29");
+        requestRetrofit(currentCityTextView.getText().toString(), KEYAPI);
     }
 
     private void requestRetrofit(String city, String keyApi) {
@@ -114,12 +167,12 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
                 if (response.body() != null){
                     tempCurrent = String.format("%.0f " + "º" + "C", response.body().getMain().getTemp());
-                    temperature.setText(tempCurrent);
+                    textTemperature.setText(tempCurrent);
                 }
             }
             @Override
             public void onFailure(Call<WeatherRequest> call, Throwable t) {
-                temperature.setText("Ошибка");
+                textTemperature.setText("Ошибка");
             }
         });
     }

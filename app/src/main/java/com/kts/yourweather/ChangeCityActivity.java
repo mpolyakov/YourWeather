@@ -30,21 +30,21 @@ public class ChangeCityActivity extends Activity {
             setContentView(R.layout.change_city);
     }
 
-    public void onClick_msk(View view) {
+    public void onClick_city1(View view) {
         TextView mskTextView = findViewById(R.id.textView3);
         Intent answerIntent1 = new Intent();
         answerIntent1.putExtra("put_city", mskTextView.getText().toString());
         setResult(RESULT_OK, answerIntent1);
         finish();
     }
-    public void onClick_spb(View view) {
+    public void onClick_city2(View view) {
         TextView spbTextView = findViewById(R.id.textView4);
         Intent answerIntent2 = new Intent();
         answerIntent2.putExtra("put_city", spbTextView.getText().toString());
         setResult(RESULT_OK, answerIntent2);
         finish();
     }
-    public void onClick_NY(View view) {
+    public void onClick_city3(View view) {
         TextView nyTextView = findViewById(R.id.textView5);
         Intent answerIntent3 = new Intent();
         answerIntent3.putExtra("put_city", nyTextView.getText().toString());
