@@ -29,6 +29,7 @@
             android:layout_height="wrap_content">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextCity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
@@ -42,7 +43,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp"
-            android:text="@string/button" />
+            android:text="@string/button"
+            android:onClick="onClick_find"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonGeoLocation"
@@ -50,7 +52,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp"
-            android:text="@string/buttonGPS" />
+            android:text="@string/buttonGPS"
+            android:onClick="onClick_getLocation"/>
 
 
     </LinearLayout>

@@ -20,13 +20,13 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.kts.yourweather.interfaces.OpenWeather;
+import com.kts.yourweather.interfaces.OpenWeatherByCity;
+import com.kts.yourweather.interfaces.OpenWeatherByGeoLocation;
 import com.kts.yourweather.model.WeatherRequest;
 
 import java.util.ArrayList;
@@ -57,12 +57,13 @@ public class MainActivity extends AppCompatActivity {
     String currentCityTop = null;
     public static final String APP_PREFERENCES_CURRENT_CITY = "city";
     TextView currentCityTextView;
-    OpenWeather openWeather;
+    OpenWeatherByCity openWeatherByCity;
     String KEYAPI = "bffab533dd87ce4285f3b672cfb5cf29";
     private String provider;
     String latFormat;
     String lonFormat;
     String accuracy;
+    OpenWeatherByGeoLocation openWeatherByGeoLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         }
         initGui();
         loadPreferences();
-        initRetrofit();
+        initRetrofitByCity();
         initFillingRecycleArrays();
         initEvents();
     }
@@ -99,11 +100,11 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onLocationChanged(Location location) {
                     String latitude = Double.toString(location.getLatitude());
-                    latFormat = String.format("%.2f", location.getLatitude());
+                    latFormat = String.format("%.7f", location.getLatitude());
                     String longitude = Double.toString(location.getLongitude());
-                    lonFormat = String.format("%.2f", location.getLongitude());
+                    lonFormat = String.format("%.7f", location.getLongitude());
                     accuracy = Float.toString(location.getAccuracy());
-                    Toast.makeText(MainActivity.this, latFormat + "         " + lonFormat, Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(MainActivity.this, latFormat + "         " + lonFormat, Toast.LENGTH_SHORT).show();
                 }
                 @Override
                 public void onStatusChanged(String s, int i, Bundle bundle) {
@@ -154,15 +155,16 @@ public class MainActivity extends AppCompatActivity {
         currentCityTextView = findViewById(R.id.currentCity);
     }
 
-    private void initRetrofit() {
+    private void initRetrofitByCity() {
+        textTemperature.setText("-- " + "º" + "C");
         Retrofit retrofit;
         retrofit = new Retrofit.Builder().baseUrl("https://api.openweathermap.org/").addConverterFactory(GsonConverterFactory.create()).build();
-        openWeather = retrofit.create(OpenWeather.class);
-        requestRetrofit(currentCityTextView.getText().toString(), KEYAPI);
+        openWeatherByCity = retrofit.create(OpenWeatherByCity.class);
+        requestRetrofitByCity(currentCityTextView.getText().toString(), KEYAPI);
     }
 
-    private void requestRetrofit(String city, String keyApi) {
-        openWeather.loadWeather(city, keyApi).enqueue(new Callback<WeatherRequest>() {
+    private void requestRetrofitByCity(String city, String keyApi) {
+        openWeatherByCity.loadWeather(city, keyApi).enqueue(new Callback<WeatherRequest>() {
             @Override
             public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
                 if (response.body() != null){
@@ -172,6 +174,34 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(Call<WeatherRequest> call, Throwable t) {
+                currentCityTextView.setText("Ошибка");
+                textTemperature.setText("Ошибка");
+            }
+        });
+    }
+
+    private void initRetrofitByGeoLocation() {
+        textTemperature.setText("-- " + "º" + "C");
+        Retrofit retrofit;
+        retrofit = new Retrofit.Builder().baseUrl("https://api.openweathermap.org/").addConverterFactory(GsonConverterFactory.create()).build();
+        openWeatherByGeoLocation = retrofit.create(OpenWeatherByGeoLocation.class);
+        requestLocation();
+        requestRetrofitByGeoLocation(latFormat, lonFormat, KEYAPI);
+    }
+
+    private void requestRetrofitByGeoLocation(String lat, String lon, String keyApi) {
+        openWeatherByGeoLocation.loadWeather(lat, lon, keyApi).enqueue(new Callback<WeatherRequest>() {
+            @Override
+            public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
+                if (response.body() != null){
+                    currentCityTextView.setText(response.body().getName());
+                    tempCurrent = String.format("%.0f " + "º" + "C", response.body().getMain().getTemp());
+                    textTemperature.setText(tempCurrent);
+                }
+            }
+            @Override
+            public void onFailure(Call<WeatherRequest> call, Throwable t) {
+                currentCityTextView.setText("Ошибка");
                 textTemperature.setText("Ошибка");
             }
         });
@@ -211,7 +241,10 @@ public class MainActivity extends AppCompatActivity {
                 editor.putString(APP_PREFERENCES_CURRENT_CITY, currentCityTop);                              //Сохраняем настройки
                 editor.apply();
 
-                initRetrofit();
+                initRetrofitByCity();
+            }
+            if (resultCode == ChangeCityActivity.RESULT_GEO){
+                initRetrofitByGeoLocation();
             }
         }
     }
