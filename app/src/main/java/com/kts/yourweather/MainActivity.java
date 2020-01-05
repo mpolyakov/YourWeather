@@ -17,6 +17,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,14 +27,15 @@ import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.kts.yourweather.interfaces.OpenWeatherByCity;
+import com.kts.yourweather.interfaces.OpenWeatherByCityForecast;
 import com.kts.yourweather.interfaces.OpenWeatherByGeoLocation;
+import com.kts.yourweather.interfaces.OpenWeatherByGeoLocationForecast;
 import com.kts.yourweather.model.WeatherRequest;
+import com.kts.yourweather.model.forecast.WeatherForecastRequest;
+import com.kts.yourweather.presenter.DateFormatter;
+import com.kts.yourweather.presenter.ImageSetter;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -67,9 +69,16 @@ public class MainActivity extends AppCompatActivity {
     String lonFormat;
     String accuracy;
     OpenWeatherByGeoLocation openWeatherByGeoLocation;
+    OpenWeatherByCityForecast openWeatherByCityForecast;
+    OpenWeatherByGeoLocationForecast openWeatherByGeoLocationForecast;
+    String tempDay1, tempDay2,tempDay3, tempDay4, tempDay5, tempDay6, tempDay7;
+    long day1, day2, day3, day4, day5, day6, day7;
+    String todaysWeather;
+    ImageView mainImage;
+    String forecWeatherDay1, forecWeatherDay2, forecWeatherDay3, forecWeatherDay4, forecWeatherDay5, forecWeatherDay6, forecWeatherDay7;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
         loadTheme();
@@ -84,9 +93,113 @@ public class MainActivity extends AppCompatActivity {
         initGui();
         loadPreferences();
         initRetrofitByCity();
-        initFillingRecycleArrays();
+
         initEvents();
 
+    }
+
+    private void initRetrofitByCityForecast() {
+        Retrofit retrofit;
+        retrofit = new Retrofit.Builder().baseUrl("https://api.openweathermap.org/").addConverterFactory(GsonConverterFactory.create()).build();
+        openWeatherByCityForecast = retrofit.create(OpenWeatherByCityForecast.class);
+        requestRetrofitByCityForecast(currentCityTextView.getText().toString(), KEYAPI);
+    }
+
+    private void requestRetrofitByCityForecast(String city, String keyApi) {
+        openWeatherByCityForecast.loadWeather(city, keyApi).enqueue(new Callback<WeatherForecastRequest>() {
+            @Override
+            public void onResponse(Call<WeatherForecastRequest> call, Response<WeatherForecastRequest> response) {
+                if (response.body() != null){
+                    tempDay1 = String.format("%.0f " + "º" + "C", (response.body().getList()).get(1).getMain().getTemp());
+                    tempDay2 = String.format("%.0f " + "º" + "C", (response.body().getList()).get(9).getMain().getTemp());
+                    tempDay3 = String.format("%.0f " + "º" + "C", (response.body().getList()).get(17).getMain().getTemp());
+                    tempDay4 = String.format("%.0f " + "º" + "C", (response.body().getList()).get(25).getMain().getTemp());
+                    tempDay5 = String.format("%.0f " + "º" + "C", (response.body().getList()).get(33).getMain().getTemp());
+                    tempDay6 = String.format("%.0f " + "º" + "C", (response.body().getList()).get(38).getMain().getTemp());
+                    tempDay7 = String.format("%.0f " + "º" + "C", (response.body().getList()).get(39).getMain().getTemp());
+                    day1 = response.body().getList().get(1).getDt();
+                    day2 = response.body().getList().get(9).getDt();
+                    day3 = response.body().getList().get(17).getDt();
+                    day4 = response.body().getList().get(25).getDt();
+                    day5 = response.body().getList().get(33).getDt();
+                    day6 = response.body().getList().get(38).getDt();
+                    day7 = response.body().getList().get(39).getDt();
+                    forecWeatherDay1 = response.body().getList().get(1).getWeather().get(0).getMain();
+                    forecWeatherDay2 = response.body().getList().get(9).getWeather().get(0).getMain();
+                    forecWeatherDay3 = response.body().getList().get(17).getWeather().get(0).getMain();
+                    forecWeatherDay4 = response.body().getList().get(25).getWeather().get(0).getMain();
+                    forecWeatherDay5 = response.body().getList().get(33).getWeather().get(0).getMain();
+                    forecWeatherDay6 = response.body().getList().get(38).getWeather().get(0).getMain();
+                    forecWeatherDay7 = response.body().getList().get(39).getWeather().get(0).getMain();
+                } else {
+                    tempDay1 = ("-- " + "º" + "C");
+                    tempDay2 = ("-- " + "º" + "C");
+                    tempDay3 = ("-- " + "º" + "C");
+                    tempDay4 = ("-- " + "º" + "C");
+                    tempDay5 = ("-- " + "º" + "C");
+                    tempDay6 = ("-- " + "º" + "C");
+                    tempDay6 = ("-- " + "º" + "C");
+                }
+                initFillingRecycleArrays();
+            }
+            @Override
+            public void onFailure(Call<WeatherForecastRequest> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Запрос не может быть выполнен", Toast.LENGTH_LONG).show();
+                Log.d("WeatherForecastReqERROR", t.getMessage());
+            }
+        });
+    }
+
+    private void initRetrofitByGeoLocationForecast() {
+        Retrofit retrofit;
+        retrofit = new Retrofit.Builder().baseUrl("https://api.openweathermap.org/").addConverterFactory(GsonConverterFactory.create()).build();
+        openWeatherByGeoLocationForecast = retrofit.create(OpenWeatherByGeoLocationForecast.class);
+        requestRetrofitByGeoLocationForecast(latFormat, lonFormat, KEYAPI);
+    }
+
+    private void requestRetrofitByGeoLocationForecast(String lat, String lon, String keyApi) {
+        openWeatherByGeoLocationForecast.loadWeather(lat, lon, keyApi).enqueue(new Callback<WeatherForecastRequest>() {
+            @Override
+            public void onResponse(Call<WeatherForecastRequest> call, Response<WeatherForecastRequest> response) {
+                if (response.body() != null){
+                    tempDay1 = String.format("%.0f " + "º" + "C", (response.body().getList()).get(1).getMain().getTemp());
+                    tempDay2 = String.format("%.0f " + "º" + "C", (response.body().getList()).get(9).getMain().getTemp());
+                    tempDay3 = String.format("%.0f " + "º" + "C", (response.body().getList()).get(17).getMain().getTemp());
+                    tempDay4 = String.format("%.0f " + "º" + "C", (response.body().getList()).get(25).getMain().getTemp());
+                    tempDay5 = String.format("%.0f " + "º" + "C", (response.body().getList()).get(33).getMain().getTemp());
+                    tempDay6 = String.format("%.0f " + "º" + "C", (response.body().getList()).get(38).getMain().getTemp());
+                    tempDay7 = String.format("%.0f " + "º" + "C", (response.body().getList()).get(39).getMain().getTemp());
+                    day1 = response.body().getList().get(1).getDt();
+                    day2 = response.body().getList().get(9).getDt();
+                    day3 = response.body().getList().get(17).getDt();
+                    day4 = response.body().getList().get(25).getDt();
+                    day5 = response.body().getList().get(33).getDt();
+                    day6 = response.body().getList().get(38).getDt();
+                    day7 = response.body().getList().get(39).getDt();
+                    forecWeatherDay1 = response.body().getList().get(1).getWeather().get(0).getMain();
+                    forecWeatherDay2 = response.body().getList().get(9).getWeather().get(0).getMain();
+                    forecWeatherDay3 = response.body().getList().get(17).getWeather().get(0).getMain();
+                    forecWeatherDay4 = response.body().getList().get(25).getWeather().get(0).getMain();
+                    forecWeatherDay5 = response.body().getList().get(33).getWeather().get(0).getMain();
+                    forecWeatherDay6 = response.body().getList().get(38).getWeather().get(0).getMain();
+                    forecWeatherDay7 = response.body().getList().get(39).getWeather().get(0).getMain();
+                } else {
+                    tempDay1 = ("-- " + "º" + "C");
+                    tempDay2 = ("-- " + "º" + "C");
+                    tempDay3 = ("-- " + "º" + "C");
+                    tempDay4 = ("-- " + "º" + "C");
+                    tempDay5 = ("-- " + "º" + "C");
+                    tempDay6 = ("-- " + "º" + "C");
+                    tempDay6 = ("-- " + "º" + "C");
+                }
+                initFillingRecycleArrays();
+            }
+            @Override
+            public void onFailure(Call<WeatherForecastRequest> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Запрос не может быть выполнен", Toast.LENGTH_LONG).show();
+                Log.d("WeatherForecastReqERROR", t.getMessage());
+            }
+        });
     }
 
     private void requestLocation() {
@@ -103,12 +216,9 @@ public class MainActivity extends AppCompatActivity {
             locationManager.requestLocationUpdates(provider, 10000, 10, new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    String latitude = Double.toString(location.getLatitude());
                     latFormat = String.format("%.7f", location.getLatitude());
-                    String longitude = Double.toString(location.getLongitude());
                     lonFormat = String.format("%.7f", location.getLongitude());
                     accuracy = Float.toString(location.getAccuracy());
-//                    Toast.makeText(MainActivity.this, latFormat + "         " + lonFormat, Toast.LENGTH_SHORT).show();
                 }
                 @Override
                 public void onStatusChanged(String s, int i, Bundle bundle) {
@@ -155,19 +265,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initGui() {
-        String pattern = "EE, dd MMM yyyy, HH:mm";
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern, new Locale("ru", "RU"));
-        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+3"));
-        String date = simpleDateFormat.format(new Date());
         TextView textViewDate = findViewById(R.id.textViewDate);
-        textViewDate.setText(date);
-
+        textViewDate.setText(DateFormatter.fullDate(0));
         textTemperature = findViewById(R.id.textView);
         currentCityTextView = findViewById(R.id.currentCity);
+        mainImage = findViewById(R.id.imageViewMain);
     }
 
     private void initRetrofitByCity() {
-        textTemperature.setText("-- " + "º" + "C");
+        initRetrofitByCityForecast();
         Retrofit retrofit;
         retrofit = new Retrofit.Builder().baseUrl("https://api.openweathermap.org/").addConverterFactory(GsonConverterFactory.create()).build();
         openWeatherByCity = retrofit.create(OpenWeatherByCity.class);
@@ -181,22 +287,28 @@ public class MainActivity extends AppCompatActivity {
                 if (response.body() != null){
                     tempCurrent = String.format("%.0f " + "º" + "C", response.body().getMain().getTemp());
                     textTemperature.setText(tempCurrent);
+                    todaysWeather = response.body().getWeather()[0].getMain();
+                    mainImage.setImageResource(ImageSetter.adviceImage(todaysWeather));
+                    return;
                 }
+                currentCityTextView.setText("Ошибка");
+                textTemperature.setText("-- " + "º" + "C");
+                mainImage.setImageResource(R.drawable.wtf_96);
             }
             @Override
             public void onFailure(Call<WeatherRequest> call, Throwable t) {
-                currentCityTextView.setText("Ошибка");
-                textTemperature.setText("Ошибка");
+                Log.d("WeatherRequestERROR", t.getMessage());
+                Toast.makeText(MainActivity.this, "Запрос не может быть выполнен", Toast.LENGTH_LONG).show();
             }
         });
     }
 
     private void initRetrofitByGeoLocation() {
-        textTemperature.setText("-- " + "º" + "C");
+        requestLocation();
+        initRetrofitByGeoLocationForecast();
         Retrofit retrofit;
         retrofit = new Retrofit.Builder().baseUrl("https://api.openweathermap.org/").addConverterFactory(GsonConverterFactory.create()).build();
         openWeatherByGeoLocation = retrofit.create(OpenWeatherByGeoLocation.class);
-        requestLocation();
         requestRetrofitByGeoLocation(latFormat, lonFormat, KEYAPI);
     }
 
@@ -208,12 +320,17 @@ public class MainActivity extends AppCompatActivity {
                     currentCityTextView.setText(response.body().getName());
                     tempCurrent = String.format("%.0f " + "º" + "C", response.body().getMain().getTemp());
                     textTemperature.setText(tempCurrent);
+                    todaysWeather = response.body().getWeather()[0].getMain();
+                    mainImage.setImageResource(ImageSetter.adviceImage(todaysWeather));
+                    return;
                 }
+                currentCityTextView.setText("Ошибка");
+                textTemperature.setText("GPS off");
+                mainImage.setImageResource(R.drawable.wtf_96);
             }
             @Override
             public void onFailure(Call<WeatherRequest> call, Throwable t) {
-                currentCityTextView.setText("Ошибка");
-                textTemperature.setText("Ошибка");
+                Toast.makeText(MainActivity.this, "Запрос не может быть выполнен", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -261,29 +378,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initFillingRecycleArrays(){
-        mDays.add("ПН");
-        mDays.add("ВТ");
-        mDays.add("СР");
-        mDays.add("ЧТ");
-        mDays.add("ПТ");
-        mDays.add("СБ");
-        mDays.add("ВС");
+        mDays.clear();
+        mForecTemperature.clear();
+        mImagesId.clear();
 
-        mForecTemperature.add(tempCurrent);
-        mForecTemperature.add(tempCurrent);
-        mForecTemperature.add(tempCurrent);
-        mForecTemperature.add(tempCurrent);
-        mForecTemperature.add(tempCurrent);
-        mForecTemperature.add(tempCurrent);
-        mForecTemperature.add(tempCurrent);
+        mDays.add(DateFormatter.dayOfTheWeek(day1));
+        mDays.add(DateFormatter.dayOfTheWeek(day2));
+        mDays.add(DateFormatter.dayOfTheWeek(day3));
+        mDays.add(DateFormatter.dayOfTheWeek(day4));
+        mDays.add(DateFormatter.dayOfTheWeek(day5));
+        mDays.add(DateFormatter.dayOfTheWeek(day6));
+        mDays.add(DateFormatter.dayOfTheWeek(day7));
 
-        mImagesId.add(R.drawable.sun240);
-        mImagesId.add(R.drawable.snow192);
-        mImagesId.add(R.drawable.sun240);
-        mImagesId.add(R.drawable.storm100_f);
-        mImagesId.add(R.drawable.rain100_f);
-        mImagesId.add(R.drawable.cloudly200_f);
-        mImagesId.add(R.drawable.sun240);
+
+        mForecTemperature.add(0, tempDay1);
+        mForecTemperature.add(1, tempDay2);
+        mForecTemperature.add(2, tempDay3);
+        mForecTemperature.add(3, tempDay4);
+        mForecTemperature.add(4, tempDay5);
+        mForecTemperature.add(5, tempDay6);
+        mForecTemperature.add(6, tempDay7);
+
+
+        mImagesId.add(ImageSetter.adviceImage(forecWeatherDay1));
+        mImagesId.add(ImageSetter.adviceImage(forecWeatherDay2));
+        mImagesId.add(ImageSetter.adviceImage(forecWeatherDay3));
+        mImagesId.add(ImageSetter.adviceImage(forecWeatherDay4));
+        mImagesId.add(ImageSetter.adviceImage(forecWeatherDay5));
+        mImagesId.add(ImageSetter.adviceImage(forecWeatherDay6));
+        mImagesId.add(ImageSetter.adviceImage(forecWeatherDay7));
 
         initRecyclerView();
 

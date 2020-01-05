@@ -1,14 +1,14 @@
 package com.kts.yourweather.model;
 
 public class Wind {
-    private int speed;
+    private double speed;
     private int deg;
 
-    public int getSpeed() {
+    public double getSpeed() {
         return speed;
     }
 
-    public void setSpeed(int speed) {
+    public void setSpeed(double speed) {
         this.speed = speed;
     }
 
