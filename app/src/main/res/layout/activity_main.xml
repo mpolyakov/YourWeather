@@ -13,7 +13,7 @@
         android:id="@+id/textViewDate"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="0.7"
+        android:layout_weight="0.6"
         android:text="@string/greeting"
         android:layout_gravity="center_horizontal"/>
 
@@ -22,7 +22,7 @@
         android:id="@+id/currentCity"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="0.5"
+        android:layout_weight="0.6"
         android:onClick="onClickChangeCity"
         android:text="@string/currentCity"
         android:textSize="24sp"
